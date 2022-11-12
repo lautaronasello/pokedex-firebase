@@ -1,11 +1,19 @@
 import { Box, Button, Grid, Paper, Stack, Typography } from '@mui/material';
 import React from 'react';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+} from 'firebase/auth';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { auth } from '../Firebase/firebase';
+import { Google } from '@mui/icons-material';
+import Cookies from 'js-cookie';
 export default function Landing() {
   const provider = new GoogleAuthProvider();
   const navigate = useNavigate();
+  const user = Cookies.get('uid');
   const handleClickLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -13,7 +21,7 @@ export default function Landing() {
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
-      localStorage.setItem('accessToken', token);
+      localStorage.setItem('token', token);
       // The signed-in user info.
       const user = result.user;
       localStorage.setItem('userInfo', {
@@ -36,7 +44,10 @@ export default function Landing() {
       // ...
     }
   };
-  return (
+
+  return user ? (
+    <Navigate to='/inicio' />
+  ) : (
     <Box
       sx={{
         display: 'flex',
@@ -71,10 +82,14 @@ export default function Landing() {
             >
               <Typography variant='h6'>Hola, bienvenido a pokeapp!</Typography>
               <Typography variant='subtitle1'>
-                Para poder continuar es necesario que te loguees
+                Para poder continuar inicia sesion con una cuenta de google.
               </Typography>
-              <Button variant='contained' onClick={handleClickLogin}>
-                ENTRAR
+              <Button
+                variant='contained'
+                endIcon={<Google />}
+                onClick={handleClickLogin}
+              >
+                google
               </Button>
             </Stack>
           </Paper>
